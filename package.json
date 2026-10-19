@@ -1,0 +1,93 @@
+{
+  "name": "youdu",
+  "version": "0.2.0",
+  "description": "幽读 - 纯本地小说阅读器",
+  "main": "./out/main/index.js",
+  "author": "youdu",
+  "license": "MIT",
+  "homepage": "https://github.com/youdu/youdu",
+  "desktopName": "youdu",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "electron-vite build",
+    "preview": "node scripts/preview.mjs",
+    "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
+    "typecheck:web": "vue-tsc --noEmit -p tsconfig.web.json --composite false",
+    "typecheck": "npm run typecheck:node && npm run typecheck:web",
+    "generate-icons": "node scripts/generate-icons.mjs",
+    "build:win": "npm run build && electron-builder --win",
+    "build:linux": "node scripts/build-linux.mjs",
+    "build:linglong": "node scripts/build-linglong.mjs",
+    "build:mac": "npm run build && electron-builder --mac",
+    "build:all": "npm run build && electron-builder -mwl",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@lingo-reader/mobi-parser": "^0.4.6",
+    "@lucide/vue": "^1.47.0",
+    "7zip-min": "^3.0.1",
+    "archiver": "^8.0.0",
+    "better-sqlite3": "^13.0.3",
+    "chokidar": "^5.0.0",
+    "dompurify": "^3.4.15",
+    "epub-gen": "^0.1.0",
+    "fast-xml-parser": "^5.11.1",
+    "highlight.js": "^11.12.0",
+    "iconv-lite": "^0.7.3",
+    "jschardet": "^4.0.0",
+    "markdown-it": "^15.0.2",
+    "naive-ui": "^2.45.3",
+    "node-stream-zip": "^1.16.0",
+    "node-unrar-js": "^2.0.2",
+    "pdf-parse": "^2.4.5",
+    "pinia": "^4.0.3",
+    "rss-parser": "^3.13.0",
+    "sharp": "^0.35.4",
+    "tar": "^7.5.22",
+    "vue": "^3.5.43",
+    "vue-i18n": "^11.4.12",
+    "vue-router": "^5.3.1",
+    "xxhash-wasm": "^1.1.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3",
+    "@eslint/js": "^10.0.1",
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^26.6.2",
+    "@vitejs/plugin-vue": "^6.0.9",
+    "@vitest/coverage-v8": "^5.0.1",
+    "electron": "^44.4.3",
+    "electron-builder": "^26.15.3",
+    "electron-vite": "^6.0.0",
+    "eslint": "^10.11.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.5.1",
+    "png-to-ico": "^3.0.2",
+    "prettier": "^3.9.9",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.70.1",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.1",
+    "vue-tsc": "^3.3.11"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,vue}": [
+      "prettier --write"
+    ],
+    "*.{js,mjs,cjs,json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  },
+  "overrides": {
+    "ejs": "^3.1.10",
+    "nth-check": "^2.0.1",
+    "lodash.pick": "^4.4.0"
+  }
+}

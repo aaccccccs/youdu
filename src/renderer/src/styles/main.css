@@ -1,0 +1,773 @@
+/**
+ * 全局基础样式 — 幽读小说阅读器
+ *
+ * 统一品牌设计令牌，默认主题为日间（day）。
+ * :root fallback 值使用日间主题，避免首次闪烁。
+ * 主色 #7c5cff（紫色），所有页面共用的 CSS 变量。
+ *
+ * 布局原则：
+ *   1. html/body height:100% 是布局高度链根基
+ *   2. body overflow:hidden 防止全局滚动条
+ *   3. 只有内容区设置 overflow:auto，其他容器 overflow:hidden
+ *   4. 零硬编码颜色 — 所有颜色通过 CSS 变量引用
+ */
+
+/* ═══════════════════════════════════════════════════════════════
+   :root — CSS 变量系统
+   ═══════════════════════════════════════════════════════════════ */
+:root {
+  /* ─── 品牌色 ─── */
+  --primary: #8b5cf6;
+  --primary-hover: #9f70ff;
+  --primary-pressed: #7748e2;
+
+  /* ─── 主题背景色（日间默认 fallback） ─── */
+  --bg-base: #f5f3f0;
+  --bg-titlebar: #ebe9e6;
+  --bg-reader: #f0eeeb;
+  --bg-card: #edebe8;
+  --bg-elevated: #e6e4e1;
+  --bg-hover: rgba(0, 0, 0, 0.04);
+  --bg-active: rgba(0, 0, 0, 0.06);
+
+  /* ─── 主色衍生（日间默认 fallback） ─── */
+  --bg-primary-active: rgba(139, 92, 246, 0.12);
+  --bg-primary-tag: rgba(139, 92, 246, 0.08);
+  --bg-primary-overlay: rgba(139, 92, 246, 0.15);
+  --bg-primary-badge: rgba(139, 92, 246, 0.15);
+  --border-primary: rgba(139, 92, 246, 0.15);
+  --shadow-primary: 0 2px 8px rgba(139, 92, 246, 0.15);
+
+  /* ─── 文字颜色（日间默认 fallback） ─── */
+  --text-primary: #333333;
+  --text-secondary: #595959;
+  --text-tertiary: #8c8c8c;
+  --text-on-primary: #ffffff;
+  --text-on-color: #ffffff;
+
+  /* ─── 边框语义令牌 ─── */
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --border-default: rgba(0, 0, 0, 0.15);
+  --border-interactive: rgba(0, 0, 0, 0.25);
+
+  /* ─── 交互状态语义令牌 ─── */
+  --state-hover: rgba(0, 0, 0, 0.04);
+  --state-active: rgba(0, 0, 0, 0.06);
+  --state-primary-active: rgba(139, 92, 246, 0.12);
+
+  /* ─── 边框别名（向后兼容） ─── */
+  --border-color: rgba(0, 0, 0, 0.08);
+  --border-color-strong: rgba(0, 0, 0, 0.15);
+  --border-radius: 8px;
+  --border-radius-sm: 6px;
+  --border-radius-xs: 2px;
+  --border-radius-lg: 12px;
+  --border-radius-10px: 10px;
+
+  /* ─── 徽章 ─── */
+  --bg-badge: rgba(0, 0, 0, 0.08);
+  --bg-badge-hover: rgba(0, 0, 0, 0.12);
+
+  /* ─── 状态/类型徽章色（封面叠加，不随主题变化） ─── */
+  --badge-info: rgba(59, 130, 246, 0.72);
+  --badge-success: rgba(34, 197, 94, 0.72);
+  --badge-warning: rgba(249, 115, 22, 0.72);
+  --badge-primary: rgba(139, 92, 246, 0.72);
+
+  /* ─── 来源标签色（封面叠加，不随主题变化） ─── */
+  --tag-info: rgba(59, 130, 246, 0.55);
+  --tag-success: rgba(34, 197, 94, 0.55);
+  --tag-info-shadow: rgba(59, 130, 246, 0.25);
+  --tag-success-shadow: rgba(34, 197, 94, 0.25);
+  --tag-info-shadow-sm: rgba(59, 130, 246, 0.2);
+  --tag-success-shadow-sm: rgba(34, 197, 94, 0.2);
+
+  /* ─── 卡片悬停额外阴影 ─── */
+  --shadow-card-extra: 0 12px 28px rgba(0, 0, 0, 0.16);
+
+  /* ─── 功能色 ─── */
+  --color-danger: #f56565;
+  --color-danger-strong: #e81123;
+  --color-success: #52c41a;
+  --bg-danger-hover: rgba(245, 101, 101, 0.1);
+
+  /* ─── 特殊背景 ─── */
+  --bg-bar: rgba(237, 235, 232, 0.95);
+
+  --bg-highlight: rgba(0, 0, 0, 0.04);
+
+  /* ─── 文本高亮色（6 种，与 shared.ts HIGHLIGHT_COLORS 对齐） ─── */
+  --highlight-color-yellow: rgba(255, 224, 102, 0.35);
+  --highlight-color-green: rgba(105, 219, 124, 0.35);
+  --highlight-color-blue: rgba(116, 192, 252, 0.35);
+  --highlight-color-pink: rgba(250, 162, 193, 0.35);
+  --highlight-color-purple: rgba(177, 151, 252, 0.35);
+  --highlight-color-orange: rgba(255, 169, 77, 0.35);
+
+  /* ─── 特殊阴影 ─── */
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-elevated: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --shadow-menu: 0 4px 16px rgba(0, 0, 0, 0.15);
+  --shadow-bar: 0 -4px 16px rgba(0, 0, 0, 0.1);
+
+  /* ─── 滚动条 ─── */
+  --scrollbar-thumb: rgba(0, 0, 0, 0.15);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.25);
+
+  /* ─── 间距 ─── */
+  --spacing-2xs: 2px;
+  --spacing-xs: 4px;
+  --spacing-3px: 3px;
+  --spacing-6px: 6px;
+  --spacing-sm: 8px;
+  --spacing-10px: 10px;
+  --spacing-sm-md: 12px;
+  --spacing-14px: 14px;
+  --spacing-md: 16px;
+  --spacing-md-lg: 20px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+  --spacing-3xl: 64px;
+
+  /* ─── 阅读器动态变量（由 settings store 驱动，组件 inline style 覆盖） ─── */
+  --reader-margin: 40px;
+  --reader-paragraph-spacing: 1;
+
+  /* ─── 字体 ─── */
+  --font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-sm-plus: 13px;
+  --font-size-base: 14px;
+  --font-size-base-plus: 15px;
+  --font-size-lg: 16px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-28px: 28px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   全局基础样式
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* html/body height:100% 是整个布局高度链的根基。
+   没有这两行，#app 的 height:100% 会解析为 auto，
+   导致所有 height:100% 的容器塌缩为内容高度，
+   内容撑开 html/body 产生全局滚动条，
+   左侧导航栏/分组侧边栏/阅读器工具栏等本应固定的元素跟着滚动。 */
+html,
+body {
+  height: 100%;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  background: var(--bg-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  user-select: none;
+  overflow: hidden;
+}
+
+/* 滚动条 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: var(--border-radius-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* 链接 */
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--primary-hover);
+}
+
+/* 按钮 */
+button {
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -1px;
+}
+
+/* 输入框聚焦 */
+textarea:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: -1px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   文本工具类
+   ═══════════════════════════════════════════════════════════════ */
+
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-clamp-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.text-clamp-4 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   动画
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 页面切换动画 */
+.page-fade-leave-active {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+  will-change: transform, opacity;
+}
+
+.page-fade-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.page-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+/* 通用 keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 动画工具类 */
+.animate-fade-in {
+  animation: fadeIn 0.2s ease;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.25s ease;
+}
+
+.animate-slide-right {
+  animation: slideInRight 0.25s ease;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s ease;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   主题色块按钮（全局共享 — Settings.vue 和 ReadSettings.vue 共用）
+   ═══════════════════════════════════════════════════════════════ */
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--spacing-10px);
+}
+
+.theme-swatch {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  height: var(--spacing-3xl);
+  padding: var(--spacing-sm) var(--spacing-xs);
+  border: 2px solid transparent;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.theme-swatch:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card);
+}
+
+.theme-swatch:active {
+  transform: translateY(0) scale(0.96);
+}
+
+/* 当前主题高亮：紫色边框 + 角标 */
+.theme-swatch.active {
+  border-color: var(--primary);
+  box-shadow:
+    0 0 0 1px var(--primary),
+    var(--shadow-primary);
+}
+
+.theme-swatch.active::after {
+  content: '✓';
+  position: absolute;
+  top: var(--spacing-2xs);
+  right: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.theme-swatch-label {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.theme-swatch-name {
+  font-size: var(--font-size-xs);
+  opacity: 0.85;
+  line-height: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   自定义颜色选择器（全局共享）
+   ═══════════════════════════════════════════════════════════════ */
+
+.custom-colors {
+  padding: var(--spacing-sm-md);
+  background: var(--bg-hover);
+  border-radius: var(--border-radius);
+}
+
+.color-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm-md);
+  margin-bottom: var(--spacing-sm-md);
+}
+
+.color-row:last-child {
+  margin-bottom: 0;
+}
+
+.color-label {
+  font-size: var(--font-size-sm-plus);
+  color: var(--text-secondary);
+  width: 60px;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   自定义按钮反馈动画（非 Naive UI 组件）
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 高亮颜色按钮 — hover 缩放 + active 缩小 */
+.highlight-color-btn {
+  transition:
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.highlight-color-btn:hover {
+  transform: scale(1.1);
+}
+
+.highlight-color-btn:active {
+  transform: scale(0.92);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   其他工具类
+   ═══════════════════════════════════════════════════════════════ */
+
+.n-card {
+  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+  transition-duration: 0.2s;
+  transition-timing-function: ease;
+}
+
+.card-hover {
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  will-change: transform;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* will-change 工具类 */
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
+}
+
+/* CSS containment 工具类 */
+.contain-layout {
+  contain: layout;
+}
+
+.contain-strict {
+  contain: strict;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   半透明琉璃质感 — Naive UI 组件玻璃效果
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 原理：
+   - Naive UI themeOverrides 不接受半透明 rgba 值（传 rgba(R,G,B,0.9) 给
+     modalColor/popoverColor 等属性会导致白屏），所以保持 themeOverrides
+     中使用不透明颜色，在 CSS 中覆盖 --n-color 变量实现半透明。
+   - 使用 color-mix(in srgb, var(--bg-card) 75%, transparent) 在 CSS 中
+     计算 75% 不透明度的背景色，主题切换时自动跟随 CSS 变量更新。
+   - backdrop-filter: blur() 让组件背后的内容模糊，形成琉璃/玻璃质感。
+   - !important 确保覆盖 Naive UI CSSR 动态注入的样式（同特异性时顺序不可控）。
+*/
+
+/* ─── 弹出层类 — 强玻璃质感（blur 16px + saturate 180%） ─── */
+/* 这些组件浮在页面内容之上，玻璃质感最自然 */
+.n-dialog,
+.n-popover,
+.n-dropdown-menu,
+.n-drawer,
+.n-notification {
+  --n-color: color-mix(in srgb, var(--bg-card) 75%, transparent) !important;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+}
+
+/* NModal 单独处理：backdrop-filter 放在 mask 层而非内容层，
+   避免创建层叠上下文导致 close 按钮点击区域失效 */
+.n-modal {
+  --n-color: color-mix(in srgb, var(--bg-card) 75%, transparent) !important;
+}
+
+/* NModal 内容容器添加玻璃质感 */
+.n-modal .n-card {
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+}
+
+/* 确保所有模态框的 close 按钮可点击 — 修复 backdrop-filter 导致的层叠上下文问题 */
+.n-modal .n-card-header__close,
+.n-dialog .n-dialog__close,
+.n-drawer .n-drawer-close {
+  z-index: 10;
+  pointer-events: auto !important;
+  position: relative;
+}
+
+/* 增大模态框/对话框/抽屉关闭按钮的点击区域（Naive UI 默认太小） */
+.n-modal .n-card-header__close .n-base-icon,
+.n-dialog .n-dialog__close .n-base-icon,
+.n-drawer .n-drawer-close .n-base-icon {
+  font-size: 20px !important;
+}
+
+.n-modal .n-card-header__close .n-button,
+.n-dialog .n-dialog__close,
+.n-drawer .n-drawer-close {
+  min-width: 36px !important;
+  min-height: 36px !important;
+}
+
+/* 确保 n-card-header 不遮挡 close 按钮的点击区域 */
+.n-modal .n-card-header {
+  position: relative;
+}
+
+/* Popconfirm 使用 Popover 内部，已被 .n-popover 覆盖 */
+
+/* ─── Tooltip — 使用 elevatedBg 而非 cardBg ─── */
+/* Tooltip 在 Naive UI 中渲染为 .n-popover.n-tooltip，
+   需要在 .n-popover 之后声明以覆盖（同特异性，后者胜出） */
+.n-tooltip {
+  --n-color: color-mix(in srgb, var(--bg-elevated) 75%, transparent) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   NModal 全局样式（teleport 到 body，scoped CSS 无法匹配）
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ImportExportModal 组件 - 导入弹窗 */
+.import-export-modal.import-modal {
+  width: 600px;
+  max-width: 90vw;
+}
+
+.import-export-modal.import-modal .n-card__content {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* ImportExportModal 组件 - 导出弹窗 */
+.import-export-modal.export-modal {
+  width: 500px;
+  max-width: 90vw;
+}
+
+/* ImportExportModal 组件 - 详细编辑弹窗 */
+.import-export-modal.detail-edit-modal {
+  width: 700px;
+  max-width: 90vw;
+}
+
+.import-export-modal.detail-edit-modal .n-card__content {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+mark.highlight-yellow {
+  background-color: var(--highlight-color-yellow);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+mark.highlight-green {
+  background-color: var(--highlight-color-green);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+mark.highlight-blue {
+  background-color: var(--highlight-color-blue);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+mark.highlight-pink {
+  background-color: var(--highlight-color-pink);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+mark.highlight-purple {
+  background-color: var(--highlight-color-purple);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+mark.highlight-orange {
+  background-color: var(--highlight-color-orange);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+/* ─── 富文本渲染样式（代码块/引用/表格/标题/列表/链接） ───
+   由 richTextRenderer.ts 的 renderRichTextBlock/renderRichTextInline 产生。
+   使用主题变量适配浅色/深色主题。 */
+
+/* 代码块：等宽字体 + 深色背景 + 圆角 + 水平滚动 */
+.rich-code {
+  background: var(--bg-elevated);
+  padding: 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  line-height: 1.5;
+  margin: 8px 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--text-primary);
+}
+
+/* 引用块：左侧边框 + 缩进 + 次要文字颜色 */
+.rich-quote {
+  border-left: 3px solid var(--border-default);
+  padding-left: 12px;
+  padding-right: 8px;
+  margin: 8px 0;
+  color: var(--text-secondary);
+  font-style: normal;
+  line-height: 1.7;
+}
+
+/* 表格容器：水平滚动 + 全宽 */
+.rich-table {
+  overflow-x: auto;
+  margin: 8px 0;
+  width: 100%;
+}
+
+/* 表格：边框合并 + 全宽 + 行间距 */
+.rich-table table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.95em;
+}
+
+/* 表头：加粗 + 背景色 */
+.rich-table th {
+  border: 1px solid var(--border-default);
+  padding: 6px 10px;
+  text-align: left;
+  font-weight: 600;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+/* 表格单元格：边框 + 内边距 */
+.rich-table td {
+  border: 1px solid var(--border-default);
+  padding: 6px 10px;
+  color: var(--text-primary);
+}
+
+/* 表格行悬停效果 */
+.rich-table tr:hover td {
+  background: var(--bg-hover);
+}
+
+/* 标题：加粗 + 间距 */
+.rich-heading {
+  font-weight: 600;
+  margin: 12px 0 6px;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+.rich-h1 {
+  font-size: 1.5em;
+  margin-top: 16px;
+}
+
+.rich-h2 {
+  font-size: 1.3em;
+  margin-top: 14px;
+}
+
+.rich-h3 {
+  font-size: 1.15em;
+  margin-top: 12px;
+}
+
+.rich-h4 {
+  font-size: 1.05em;
+  margin-top: 10px;
+}
+
+.rich-h5 {
+  font-size: 1em;
+  margin-top: 10px;
+}
+
+.rich-h6 {
+  font-size: 0.95em;
+  margin-top: 8px;
+  color: var(--text-secondary);
+}
+
+/* 列表项：左缩进 + 圆点标记 */
+.rich-list-item {
+  list-style: disc outside none;
+  margin-left: 20px;
+  padding-left: 4px;
+  margin-bottom: 4px;
+  color: var(--text-primary);
+  line-height: 1.7;
+}
+
+/* 链接：主色 + 下划线 */
+.rich-link {
+  color: var(--primary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.rich-link:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}

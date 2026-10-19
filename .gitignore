@@ -1,0 +1,75 @@
+# 依赖
+node_modules/
+
+# 构建产物
+out/
+dist/
+*.tsbuildinfo
+
+# 运行时数据
+data/
+
+# 日志
+*.log
+npm-debug.log*
+app-output.log
+
+# 备份文件（手工备份产物，历史已进入 Git）
+*.bak
+*.bak2
+*.bak3
+*.bak4
+*.bak5
+*.bak6
+*.bak7
+*.bak8
+*.bak9
+backup/
+.backup/
+
+# 测试文件
+test-files/
+test/_archive/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 环境变量
+.env
+.env.local
+
+# electron-vite 临时
+.electron-vite/
+
+# Electron 发布
+release/
+# 飞牛同步临时目录
+.sync_temp_dir/
+
+# Node 二进制下载
+node-linux-x64/
+node-*.tar.xz
+
+# 工具临时文件
+.codeartsdoer/
+.codegraph/
+__debug_recover.ps1
+
+# 测试数据
+test-data/
+# 工具与临时
+.arts/
+.resultverify/
+.merkle-snapshot.json
+*.localbak
+*.tgz
+
+# 玲珑构建工作区（ll-builder 生成物：cache/output/overlay/sources/entry.sh/depends.yaml；
+# 构建配置 linglong.yaml 本身在仓库根，保留跟踪）
+linglong/
