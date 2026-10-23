@@ -5,9 +5,9 @@
 ## 功能
 
 - 支持 TXT / EPUB / MOBI / AZW3 / PDF / CBZ / CBR 等主流格式
-- 智能分类：自动识别文字 / 图文 / 漫画，支持手动修正
+- 智能分类：自动识别文字 / 图文 / 漫画，支持手动修正与学习
 - 三种阅读模式：按章显示、无限拼接、翻页
-- 漫画阅读优化：图片精确占位，滚动稳定、进度准确
+- 漫画与扫描版优化：图片精确占位、按需加载、滚动稳定
 - 多主题、字体排版自定义，繁简转换
 - 书签、高亮、全文搜索，阅读进度精确保存
 - 可选联网：RSS 订阅、OPDS 在线书库浏览下载
@@ -15,23 +15,23 @@
 
 ## 下载安装
 
-当前版本 v0.2.0（Linux x64）：
+当前版本 v0.3.6（Linux x64）：
 
-- **Deepin / Debian / Ubuntu（deb）**：[Youdu-0.2.0-linux-x64.deb](https://github.com/aaccccccs/youdu/releases/download/v0.2.0/Youdu-0.2.0-linux-x64.deb)
-- **通用 Linux（AppImage）**：[Youdu-0.2.0-linux-x86_64.AppImage](https://github.com/aaccccccs/youdu/releases/download/v0.2.0/Youdu-0.2.0-linux-x86_64.AppImage)
-- **Deepin 玲珑（uab）**：[Youdu-0.2.0-linglong-x64.uab](https://github.com/aaccccccs/youdu/releases/download/v0.2.0/Youdu-0.2.0-linglong-x64.uab)
+- **Deepin / Debian / Ubuntu（deb）**：[Youdu-0.3.6-linux-x64.deb](https://github.com/aaccccccs/youdu/releases/download/v0.3.6/Youdu-0.3.6-linux-x64.deb)
+- **通用 Linux（AppImage）**：[Youdu-0.3.6-linux-x86_64.AppImage](https://github.com/aaccccccs/youdu/releases/download/v0.3.6/Youdu-0.3.6-linux-x86_64.AppImage)
+- **Deepin 玲珑（uab）**：[Youdu-0.3.6-linglong-x64.uab](https://github.com/aaccccccs/youdu/releases/download/v0.3.6/Youdu-0.3.6-linglong-x64.uab)
 
 安装方式：
 
 ```bash
 # deb 包
-sudo dpkg -i Youdu-0.2.0-linux-x64.deb
+sudo dpkg -i Youdu-0.3.6-linux-x64.deb
 
 # AppImage：下载后添加执行权限直接运行
-chmod +x Youdu-0.2.0-linux-x86_64.AppImage && ./Youdu-0.2.0-linux-x86_64.AppImage
+chmod +x Youdu-0.3.6-linux-x86_64.AppImage && ./Youdu-0.3.6-linux-x86_64.AppImage
 
 # 玲珑包
-ll-cli install Youdu-0.2.0-linglong-x64.uab
+ll-cli install Youdu-0.3.6-linglong-x64.uab
 ```
 
 其他版本见 [Releases](https://github.com/aaccccccs/youdu/releases)。
