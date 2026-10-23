@@ -1,0 +1,96 @@
+# SPDX-License-Identifier: MIT
+#
+# 幽读（Youdu）玲珑包配置
+#
+# 构建前提：
+#   1. 已安装 linglong-builder：sudo apt install linglong-builder
+#   2. 已构建 tar.gz：npm run build:linux（产出 dist/Youdu-0.3.4-linux-x64.tar.gz）
+#
+# 构建命令：
+#   ll-builder build
+#
+# 安装产物：
+#   ll-builder build 生成 .uab 文件，用 ll-cli install ./io.github.youdu_x86_64_0.3.4.0_main.uab 安装
+#
+# 说明：
+#   - Electron 应用自带完整运行时（Chromium + Node.js），无需额外 runtime
+#   - base 仅提供系统库（glibc, gtk3, nss 等），与 deb 的 Depends 对应
+#   - 玲珑沙箱内 --no-sandbox（FUSE 不支持 setuid，chrome-sandbox 用不了）
+#
+# 权限模型（玲珑 1.14.3 / Deepin 25）：
+#   - linglong.yaml 没有 permissions 字段（官方清单参考文档确认字段列表为
+#     version/package/command/base/runtime/sources/exclude/include/build/buildext/modules）
+#   - 应用默认即可访问网络与用户家目录（实测 QQ音乐/bilibili/deepin-browser 均
+#     未声明任何权限即可联网与读写文件），故无需也无法在此声明网络/文件系统权限
+#   - 用户数据：玲珑沙箱将 HOME 透传到宿主机，数据写到 ~/.local/share/youdu/。
+#     玲珑沙箱内 ~/.linglong/ 只读，无法重定向；ll-cli uninstall 无 purge 选项。
+#     卸载后数据残留是玲珑平台限制（与 deb apt remove 不 purge 行为一致）。
+#     用户可手动删除：rm -rf ~/.local/share/youdu/ ~/.config/youdu/
+
+version: '1'
+
+package:
+  # appid 用 GitHub Pages 域名 youdu.github.io 的倒置（玲珑规范：开发者应拥有 appid 对应域名）
+  id: io.github.youdu
+  # 中文显示名（商城先例：QQ音乐/哔哩哔哩/红果短剧 name 均为中文显示名）
+  name: 幽读
+  version: 0.3.6.0
+  kind: app
+  description: |
+    幽读 - 支持 TXT/EPUB/MOBI/PDF/CBZ/CBR 的本地电子书阅读器，含 RSS 订阅和 OPDS 书库浏览
+
+# command 必须用容器内绝对路径（官方文档要求），$PREFIX = /opt/apps/io.github.youdu/files
+command:
+  - /opt/apps/io.github.youdu/files/bin/youdu
+  - --disable-gpu-driver-bug-workarounds
+
+# base 用已装的 25.2.2（远程最新为 25.2.3.0；选已装版本可避免构建时下载 base layer）
+base: org.deepin.base/25.2.2
+
+# runtime: 玲珑 1.14.3 的 runtime 字段不接受数组形式的 nvidia 扩展声明
+# （ll-builder build 报错：type must be string, but is array）。
+# nvidia 扩展由 org.deepin.base 内置声明自动激活，无需在此显式引用；
+# GPU 兼容性由 command 中的 --disable-gpu-driver-bug-workarounds 处理。
+
+# kind: local 表示使用本地文件，项目目录挂载到容器内 /project/
+source:
+  - kind: local
+    name: youdu
+
+build: |
+  set -e
+  mkdir -p $PREFIX/bin
+  mkdir -p $PREFIX/share/applications
+  mkdir -p $PREFIX/share/icons/hicolor
+  mkdir -p $PREFIX/share/licenses
+  # 直接从 linux-unpacked 目录复制（避免 tar.gz 在容器内被截断）
+  cp -a /project/dist/linux-unpacked/. $PREFIX/
+  # locales 瘦身：仅保留中英文 .pak（省约 8MB；目录不存在时容错跳过）
+  find "$PREFIX/locales" -type f -name '*.pak' ! -name 'zh-CN.pak' ! -name 'zh-TW.pak' ! -name 'en-US.pak' -delete 2>/dev/null || true
+
+  # 删除非 x64 架构的 7zip（容器 ldd 检查不支持其他架构）
+  rm -rf "$PREFIX/resources/app.asar.unpacked/node_modules/7zip-bin/linux/ia32" 2>/dev/null || true
+  rm -rf "$PREFIX/resources/app.asar.unpacked/node_modules/7zip-bin/linux/arm" 2>/dev/null || true
+  rm -rf "$PREFIX/resources/app.asar.unpacked/node_modules/7zip-bin/linux/arm64" 2>/dev/null || true
+  rm -rf "$PREFIX/resources/app.asar.unpacked/node_modules/7zip-bin/win" 2>/dev/null || true
+  rm -rf "$PREFIX/resources/app.asar.unpacked/node_modules/7zip-bin/mac" 2>/dev/null || true
+  # 删除 chrome-sandbox：玲珑沙箱内 FUSE 不支持 setuid，改用 --no-sandbox
+  rm -f "$PREFIX/chrome-sandbox" 2>/dev/null || true
+  # 启动脚本：ELECTRON_DISABLE_SANDBOX=1 禁用 Electron 沙箱
+  # （玲珑沙箱内 FUSE 不支持 setuid，chrome-sandbox 用不了）
+  # 注意：玲珑沙箱内 ~/.linglong/io.github.youdu/ 只读，无法重定向数据目录。
+  # 数据写到宿主机 ~/.local/share/youdu/，卸载不自动清理（玲珑无 purge 机制）。
+  printf '%s\n' '#!/bin/bash' 'export ELECTRON_DISABLE_SANDBOX=1' 'exec "$(dirname "$0")/../youdu" "$@"' > $PREFIX/bin/youdu
+  chmod +x $PREFIX/bin/youdu
+  # desktop 文件：显示名中文"幽读"，Exec 用应用命令名（玲珑启动器解析），
+  # StartupWMClass=youdu 与窗口匹配，MimeType 声明支持的电子书格式。
+  # 不复用 electron-builder 生成的 youdu.desktop（其 Exec 路径假设 /opt/Youdu，不适用玲珑）。
+  printf '%s\n' '[Desktop Entry]' 'Type=Application' 'Name=幽读' 'GenericName=本地小说阅读器' 'Comment=支持 TXT/EPUB/MOBI/PDF/CBZ/CBR 的本地电子书阅读器' 'Exec=youdu %U' 'Icon=youdu' 'Categories=Office;Utility;TextEditor;' 'Terminal=false' 'StartupWMClass=youdu' 'MimeType=application/epub+zip;application/pdf;text/plain;application/x-mobipocket-ebook;' > $PREFIX/share/applications/io.github.youdu.desktop
+  chmod 644 $PREFIX/share/applications/io.github.youdu.desktop
+  # 图标：hicolor 全 8 档真实尺寸（16-1024，每档像素与目录名一致），
+  # 由 scripts/generate-icons.mjs 预生成到 resources/icons-hicolor/
+  # （独立于 linglong/ 工作目录，避免被 ll-builder 构建清理误删）
+  cp -a /project/resources/icons-hicolor/. $PREFIX/share/icons/hicolor/
+  # 第三方许可证文本（libvips LGPL-3.0-or-later 全文 + THIRD-PARTY-NOTICES.md）
+  cp -a /project/third-party-licenses/. $PREFIX/share/licenses/
+  echo "玲珑包构建完成"

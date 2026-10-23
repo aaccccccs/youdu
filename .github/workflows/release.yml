@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            artifact: youdu-win
+            target: --win
+          - os: ubuntu-latest
+            artifact: youdu-linux
+            target: --linux
+          - os: macos-latest
+            artifact: youdu-mac
+            target: --mac
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npx electron-vite build
+      - run: npx electron-builder --config electron-builder.yml ${{ matrix.target }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: |
+            dist/Youdu-*.exe
+            dist/Youdu-*.dmg
+            dist/Youdu-*.AppImage
+            dist/Youdu-*.deb
+            dist/Youdu-*.tar.gz
+            dist/Youdu-*.blockmap

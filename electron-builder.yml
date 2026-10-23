@@ -1,0 +1,200 @@
+# ============================================================
+# 幽读（Youdu）electron-builder 三平台统一配置
+# 规范：
+#   显示名（给用户看）：幽读        —— Win 快捷方式 / Linux .desktop / Mac CFBundleDisplayName
+#   内部名（英文，全平台一致）：Youdu / youdu
+#     appId          io.github.youdu（倒置域名，对应 GitHub Pages youdu.github.io）
+#     安装目录        /opt/Youdu、%LOCALAPPDATA%\Programs\Youdu、/Applications/Youdu.app
+#     可执行文件       youdu（三平台 executableName 统一）
+#     用户数据目录      Win: exe 同级 data/；Linux: ~/.local/share/youdu/；Mac: ~/Library/Application Support/youdu/
+#                       （见 src/main/utils.ts getUserDataRoot；不可写时 fallback 到 app.getPath('userData')）
+#   包文件名：Youdu-<version>-<os>-<arch>.<ext>
+# ============================================================
+appId: io.github.youdu
+productName: Youdu
+copyright: Copyright © 2026 幽读
+directories:
+  output: dist
+  buildResources: resources
+files:
+  - out/**/*
+  - '!**/.DS_Store'
+afterPack: scripts/after-pack.mjs
+extraResources:
+  - from: resources/icon.png
+    to: icon.png
+  - from: resources/icon.ico
+    to: icon.ico
+# 第三方许可证文本（libvips LGPL-3.0-or-later 等）打进应用目录 licenses/
+# （Linux: /opt/Youdu/licenses/；玲珑包另有 linglong.yaml 中的 share/licenses/ 逻辑）
+extraFiles:
+  - from: third-party-licenses
+    to: licenses
+npmRebuild: false
+nodeGypRebuild: false
+asarUnpack:
+  - '**/*.{node,dll,exe,wasm}'
+  - 'node_modules/@napi-rs/canvas/**/*'
+  - 'node_modules/@napi-rs/**/*'
+  - 'node_modules/sharp/**/*'
+  - 'node_modules/@img/**/*'
+  # v50：sharp 的 JS 依赖也必须解包 —— unpacked 的 sharp 以真实文件系统向上
+  # 解析 require('detect-libc')/require('semver')，若留在 asar 内则找不到
+  # （实测报 Cannot find module 'detect-libc'，导致 WebP 压缩静默失败）
+  - 'node_modules/detect-libc/**/*'
+  - 'node_modules/semver/**/*'
+  - 'node_modules/epub-gen/**/*'
+  - 'node_modules/archiver/**/*'
+  - 'node_modules/ejs/**/*'
+  - 'node_modules/fs-extra/**/*'
+  - 'node_modules/q/**/*'
+  - 'node_modules/underscore/**/*'
+  - 'node_modules/uslug/**/*'
+  - 'node_modules/entities/**/*'
+  - 'node_modules/superagent/**/*'
+  - 'node_modules/diacritics/**/*'
+  - 'node_modules/mime/**/*'
+  - 'node_modules/pdfjs-dist/wasm/**/*'
+  # 7zip-min/7zip-bin：内嵌 7za 可执行文件（无 .exe 后缀，通配不覆盖），
+  # 用于 CB7/7z 漫画解压，必须解包否则 execFile 无法执行
+  - 'node_modules/7zip-bin/**/*'
+  - 'node_modules/7zip-min/**/*'
+
+# ---------------- Windows ----------------
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: portable
+      arch:
+        - x64
+  icon: resources/icon.ico
+  signtoolOptions:
+    signingHashAlgorithms: ['sha256']
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  # 开始菜单/桌面快捷方式显示中文名
+  shortcutName: 幽读
+  uninstallDisplayName: 幽读
+  include: scripts/installer.nsh
+  artifactName: ${productName}-${version}-${os}-${arch}-setup.${ext}
+portable:
+  artifactName: ${productName}-${version}-${os}-${arch}-portable.${ext}
+
+# ---------------- Linux ----------------
+linux:
+  target:
+    - target: tar.gz
+      arch:
+        - x64
+    - target: deb
+      arch:
+        - x64
+    - target: AppImage
+      arch:
+        - x64
+  # RPM target 已移除：electron-builder 26.x schema 不接受顶层 rpm 配置块，
+  # 且打包 RPM 需要 rpmbuild（当前环境未安装）。
+  # 如需 RPM 包，请安装 rpmbuild 后取消下方 rpm 配置注释并添加 rpm target。
+
+  # 多尺寸图标：electron-builder 自动拾取 resources/icons/，安装为
+  # /usr/share/icons/hicolor/{size}x{size}/apps/youdu.png
+  icon: resources/icons
+  executableName: youdu
+  # .desktop 文件名 + WM_CLASS 窗口关联：syncDesktopName=true 时 .desktop 文件名
+  # 取自 package.json 的 desktopName，缺失时 fallback 到 executableName（=youdu）
+  # 注意：desktopName 不是 electron-builder.yml 的合法 linux 字段（schema
+  # additionalProperties:false），故不在此配置；executableName=youdu 已保证
+  # .desktop 文件名为 youdu.desktop，StartupWMClass 与 app_id 一致。
+  syncDesktopName: true
+  category: Office
+  maintainer: youdu
+  vendor: youdu
+  synopsis: 纯本地小说阅读器
+  description: 幽读 - 支持 TXT/EPUB/MOBI/PDF/CBZ/CBR 的本地电子书阅读器，含 RSS 订阅和 OPDS 书库浏览
+  # 三平台统一产物名：Youdu-0.2.0-linux-x64.{deb,AppImage,tar.gz}
+  artifactName: ${productName}-${version}-${os}-${arch}.${ext}
+deb:
+  packageName: youdu
+  # deb 的 ${arch} 会被 fpm 展开为 amd64，这里固定为三平台统一的 x64（仅构建 x64）
+  artifactName: ${productName}-${version}-${os}-x64.${ext}
+  depends:
+    - libnotify4
+    - libxtst6
+    - libnss3
+    - libgtk-3-0 | libgtk-3-0t64
+    - libgbm1
+    - libasound2 | libasound2t64
+    - libatk-bridge2.0-0 | libatk-bridge2.0-0t64
+    - libdrm2
+    - libxkbcommon0
+    - libxcomposite1
+    - libxdamage1
+    - libxfixes3
+    - libxrandr2
+    - libxshmfence1
+    - libcups2 | libcups2t64
+  # 软依赖：中文字体（最小安装系统无中文字体时 apt 会自动安装）
+  recommends:
+    - fonts-noto-cjk
+  # 声明对历史包名 youdu-local（0.2.0 及更早）的替换/冲突关系，
+  # apt 升级时自动卸载旧包（旧包不管辖 data/，书库不受影响）
+  fpm:
+    - --replaces
+    - youdu-local
+    - --conflicts
+    - youdu-local
+  # 安装后脚本：sandbox 权限 + 中文 .desktop + 桌面图标
+  afterInstall: scripts/linux-postinst.sh
+  # 卸载脚本：普通卸载/升级保留数据，purge 彻底清除（注意：深度安装器同版本换装会触发 purge，发布版本号须递增）
+  afterRemove: scripts/linux-postrm.sh
+# RPM 包配置（openEuler/龙蜥Anolis/Fedora 等 RPM 系国产 Linux）
+# 注意：electron-builder 26.x schema 不接受顶层 rpm 配置块（additionalProperties: false），
+# 且打包 RPM 需要 rpmbuild 可执行文件。以下配置注释保留，启用 RPM 打包需：
+#   1. 安装 rpmbuild：sudo apt install rpm
+#   2. 取消以下注释
+#   3. 在 linux.target 中添加 - target: rpm
+# rpm:
+#   depends:
+#     - libnotify
+#     - libnss3
+#     - gtk3
+#     - mesa-libgbm
+#     - alsa-lib
+#     - at-spi2-atk
+#     - libdrm
+#     - libxkbcommon
+#     - libXcomposite
+#     - libXdamage
+#     - libXfixes
+#     - libXrandr
+#     - cups-libs
+#   recommends:
+#     - google-noto-cjk-fonts
+
+# ---------------- macOS ----------------
+mac:
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+  icon: resources/icon.png
+  category: public.app-category.utilities
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  darkModeSupport: true
+  # Finder/启动台/Dock 显示中文名“幽读”
+  extendInfo:
+    CFBundleDisplayName: 幽读
+dmg:
+  artifactName: ${productName}-${version}-${os}-${arch}.${ext}
+  title: ${productName}-${version}
+
+compression: maximum
+generateUpdatesFilesForAllChannels: false

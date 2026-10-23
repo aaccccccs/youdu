@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "target": "ESNext",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "jsx": "preserve",
+    "jsxImportSource": "vue",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "useDefineForClassFields": true,
+    "noEmit": true,
+    "types": ["node"],
+    "paths": {
+      "@renderer/*": ["./src/renderer/src/*"],
+      "@/*": ["./src/renderer/src/*"]
+    },
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": [
+    "src/main/**/*",
+    "src/preload/**/*",
+    "src/renderer/src/**/*",
+    "src/renderer/src/**/*.vue",
+    "src/shared.ts",
+    "electron.vite.config.ts"
+  ]
+}
